@@ -7,6 +7,7 @@ const { init: initDB, Counter } = require("./db");
 const logger = morgan("tiny");
 
 const app = express();
+app.use('/static', express.static('static'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
