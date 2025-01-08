@@ -50,6 +50,28 @@ app.get("/api/wx_openid", async (req, res) => {
   }
 });
 
+// 新增接口：接收两个数并返回它们的和
+app.post("/api/add", async (req, res) => {
+  const { a, b } = req.body;
+  // 校验输入
+  if (typeof a !== "number" || typeof b !== "number") {
+    return res.status(400).send({
+      code: 1,
+      message: "参数无效，请传递两个数字。",
+    });
+  }
+  
+  const sum = a + b;
+  res.send({
+    code: 0,
+    data: {
+      a,
+      b,
+      sum,
+    },
+  });
+});
+
 const port = process.env.PORT || 80;
 
 async function bootstrap() {
