@@ -1,3 +1,4 @@
+// get uuid
 function generateUUID(macAddress) {
   // 获取当前时间戳
   const timestamp = Date.now();
@@ -18,8 +19,193 @@ function generateUUID(macAddress) {
 
   return uuid;
 }
-
 // 示例用法
 const macAddress = "12:34:56:78:9A:BC";
 const uuid = generateUUID(macAddress);
 console.log("Generated UUID:", uuid);
+
+
+const http = require('http');
+const https = require('https'); // 如果是 HTTPS URL
+const fs = require('fs');
+const path = require('path');
+const querystring = require("querystring");
+/**
+ * 下载文件的函数
+ * @param {string} fileUrl - 文件的下载链接
+ * @param {string} savePath - 保存文件的本地路径
+ */
+function downloadFile(fileUrl, savePath) {
+  // 判断协议是 HTTP 还是 HTTPS
+  const client = fileUrl.startsWith('https') ? https : http;
+
+  console.log(`开始下载文件: ${fileUrl}`);
+  
+  client.get(fileUrl, (res) => {
+    if (res.statusCode === 200) {
+      // 创建文件写入流
+      const fileStream = fs.createWriteStream(savePath);
+
+      // 将响应的数据写入文件
+      res.pipe(fileStream);
+
+      fileStream.on('finish', () => {
+        fileStream.close();
+        console.log(`文件已成功保存到: ${savePath}`);
+      });
+    } else {
+      console.error(`下载失败，状态码: ${res.statusCode}`);
+    }
+  }).on('error', (err) => {
+    console.error(`下载出错: ${err.message}`);
+  });
+}
+
+// 示例使用
+const fileUrl = 'https://7072-prod-4ghi2bc084652daf-1333806028.tcb.qcloud.la/esp32s3_firmeware/v1.0.1.zip?sign=45044bd9d183f459cfc02dd04a686ea3&t=1737373221'; // 替换为文件的实际 URL
+const savePath = path.resolve(__dirname, './app.zip'); // 保存的文件路径
+
+// downloadFile(fileUrl, savePath);
+
+
+const appId = "wxdac6a220e6df20e8"; // 替换为你的 APPID
+const appSecret = "29c0caaabf539102f0468a6713928068"; // 替换为你的 APPSECRET
+const env = "prod-4ghi2bc084652daf"; // 替换为云环境 ID
+const oss_path = "esp32s3_firmeware/test.zip"; // 替换为文件路径
+
+function getToken(appId, appSecret) {
+  const params = querystring.stringify({
+    grant_type: "client_credential",
+    appid: appId,
+    secret: appSecret,
+  });
+
+  const options = {
+    hostname: "api.weixin.qq.com",
+    port: 443,
+    path: `/cgi-bin/token?${params}`,
+    method: "GET",
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let data = "";
+
+      // 接收数据
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      // 数据接收完毕
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(data);
+
+          if (json.access_token) {
+            // 成功返回 token
+            resolve({ code: 200, token: json.access_token });
+          } else {
+            // API 返回错误
+            resolve({ code: res.statusCode || 400, message: json.errmsg || "Unknown error" });
+          }
+        } catch (error) {
+          // 解析响应失败
+          reject({ code: 500, message: "Failed to parse response" });
+        }
+      });
+    });
+
+    // 请求错误处理
+    req.on("error", (error) => {
+      reject({ code: 500, message: error.message });
+    });
+
+    // 发送请求
+    req.end();
+  });
+}
+
+function GetuploadFileInfo(accessToken, env, path) {
+  const data = JSON.stringify({
+    env: env, // 云环境 ID
+    path: path, // 文件路径
+  });
+
+  const options = {
+    hostname: "api.weixin.qq.com",
+    port: 443,
+    path: `/tcb/uploadfile?access_token=${accessToken}`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": data.length,
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let responseData = "";
+
+      // 接收数据
+      res.on("data", (chunk) => {
+        responseData += chunk;
+      });
+
+      // 数据接收完成
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(responseData);
+
+          if (json.errcode === 0) {
+            resolve({ code: 200, data: json });
+          } else {
+            resolve({ code: json.errcode, message: json.errmsg });
+          }
+        } catch (error) {
+          reject({ code: 500, message: "Failed to parse response" });
+        }
+      });
+    });
+
+    // 请求错误处理
+    req.on("error", (error) => {
+      reject({ code: 500, message: error.message });
+    });
+
+    // 写入请求数据
+    req.write(data);
+
+    // 结束请求
+    req.end();
+  });
+}
+
+// 示例用法
+async function  getinfo() {
+  const env = "prod-4ghi2bc084652daf"; // 替换为云环境 ID
+  const oss_path = "esp32s3_firmeware/test.zip"; // 替换为文件路径
+  try {
+    const result = await getToken(appId, appSecret);
+    if (result.code === 200) {
+      console.log("Access Token:", result.token);
+      try {
+        let access_token = result.token;
+        const ret = await GetuploadFileInfo(access_token, env, oss_path);
+        if (ret.code === 200) {
+          console.log("File upload response:", ret.data.url);
+        } else {
+          console.error("Error:", ret.message || `Code: ${ret.code}`);
+        }
+      } catch (error) {
+        console.error("Failed to upload file:", error);
+      }
+    } else {
+      console.error("Error:", result.message || `Code: ${result.code}`);
+    }
+  } catch (error) {
+    console.error("Failed to fetch token:", error);
+  }
+}
+
+
+getinfo()

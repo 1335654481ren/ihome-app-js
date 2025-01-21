@@ -1,0 +1,109 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+</head>
+<body>
+  <h1>Upload a File</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label for="fileInput">Choose a file:</label>
+    <input type="file" id="fileInput" name="file" required>
+    <!-- <br><br>
+    <button type="button" onclick="uploadFile()">Upload</button> -->
+  </form>
+
+  <script>
+    const appId = "wxdac6a220e6df20e8"; // 替换为你的 APPID
+    const appSecret = "29c0caaabf539102f0468a6713928068"; // 替换为你的 APPSECRET
+    const env = "prod-4ghi2bc084652daf"; // 替换为云环境 ID
+    const oss_path = "esp32s3_firmeware/test.zip"; // 替换为文件路径
+    const url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/' // 替换自己的服务域名
+
+    async function handleFileUpload(appId, appSecret, env, file, path) {
+        // 获取 access_token
+        async function getToken(appId, appSecret) {
+            const query = new URLSearchParams({
+            grant_type: "client_credential",
+            appid: appId,
+            secret: appSecret,
+            }).toString();
+
+            const url = `https://api.weixin.qq.com/cgi-bin/token?${query}`;
+            const response = await fetch(url);
+            const json = await response.json();
+
+            if (json.access_token) {
+            return { code: 200, token: json.access_token };
+            } else {
+            throw new Error(json.errmsg || "Failed to get access_token");
+            }
+        }
+
+        // 获取上传文件所需信息
+        async function getUploadFileInfo(accessToken, env, path) {
+            const url = `https://api.weixin.qq.com/tcb/uploadfile?access_token=${accessToken}`;
+            const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ env, path }),
+            });
+
+            const json = await response.json();
+            if (json.errcode === 0) {
+            return json;
+            } else {
+            throw new Error(json.errmsg || "Failed to get upload info");
+            }
+        }
+
+        // 上传文件到腾讯 COS
+        async function uploadToCOS(uploadInfo, file, path) {
+            const formData = new FormData();
+            formData.append("key", uploadInfo.key);
+            formData.append("Signature", uploadInfo.authorization);
+            formData.append("x-cos-security-token", uploadInfo.token);
+            formData.append("x-cos-meta-fileid", uploadInfo.cos_file_id);
+            formData.append("file", file, path);
+
+            const response = await fetch(uploadInfo.url, {
+            method: "POST",
+            body: formData,
+            });
+
+            if (response.ok) {
+            return uploadInfo.cos_file_id; // 返回文件 ID
+            } else {
+            throw new Error("Failed to upload file to COS");
+            }
+        }
+
+        try {
+            // Step 1: 获取 access_token
+            //const { token } = await getToken(appId, appSecret);
+            const token = "88_G1YtTBd1GZ8VApoiOuI0jnHCe7ZhRsj_EXCv1UKtEloiyAHZzIrB0XSlOq4raLGiMGt7meRe-LElRd1HCRFfjgL0yTXLgnNA-h0IQLYL71HRWnvwbFT6FNUlhSsGUNaAHANBU"
+            // Step 2: 获取上传文件信息
+            const uploadInfo = await getUploadFileInfo(token, env, path);
+
+            // Step 3: 上传文件
+            const fileId = await uploadToCOS(uploadInfo, file, path);
+
+            console.log("File uploaded successfully. File ID:", fileId);
+            return { code: 200, fileId };
+        } catch (error) {
+            console.error("Error during file upload:", error.message);
+            return { code: 500, message: error.message };
+        }
+    }
+
+    const fileInput = document.getElementById("fileInput");
+    fileInput.addEventListener("change", async () => {
+        const file = fileInput.files[0];
+        const path = `esp32s3_firmeware/${file.name}`;
+        const result = await handleFileUpload(appId, appSecret, env, file, path);
+        console.log("Upload result:", result);
+    });
+
+  </script>
+</body>
+</html>

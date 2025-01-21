@@ -61,6 +61,32 @@ const DeviceRegistration = sequelize.define("DeviceRegistration", {
 });
 
 
+// 定义设备注册信息模型
+const OTAInfo = sequelize.define("OTAInfo", {
+  deviceName: {
+    type: DataTypes.STRING,
+    allowNull: false, // 设备名称不能为空
+  },
+  deviceType: {
+    type: DataTypes.STRING,
+    allowNull: false, // 设备类型不能为空
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false, // 当前状态不能为空
+    defaultValue: "inactive", // 默认状态为 inactive
+  },
+  registrationTime: {
+    type: DataTypes.DATE,
+    allowNull: false, // 注册时间不能为空
+    defaultValue: Sequelize.NOW, // 默认值为当前时间
+  },
+  billingTime: {
+    type: DataTypes.DATE, // 计费时间可以为空
+    allowNull: true,
+  },
+});
+
 // 数据库初始化方法
 async function init() {
   await Counter.sync({ alter: true });
@@ -72,4 +98,5 @@ module.exports = {
   init,
   Counter,
   DeviceRegistration,
+  OTAInfo,
 };
