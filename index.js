@@ -172,10 +172,11 @@ app.get("/api/wx_openid", async (req, res) => {
 
 // 小程序调用，获取微信 Open ID
 app.get("/api/access_token", async (req, res) => {
-  let token, message;
+  let code, token, message;
   try {
     const result = await getToken();
     message = result.message
+    code = result.code
     if (result.code === 200) {
       console.log("Access Token:", result.token);
       token = result.token;
@@ -186,7 +187,7 @@ app.get("/api/access_token", async (req, res) => {
     console.error("Failed to fetch token:", error);
   }
   res.send({
-    code: result.code,
+    code: code,
     data: {
       token,
       message,
