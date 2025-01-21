@@ -199,7 +199,11 @@ app.get("/api/access_token", async (req, res) => {
 
 app.post("/api/uploadfileinfo", async (req, res) => {
   const { file_name } = req.body;
-  console.log("file = ", file_name);
+  console.log("filename", file_name);
+  // 模拟后端处理
+  if (!macAddress) {
+    return res.status(400).json({ error: 'file_name are required!' });
+  }
   let code = 0;
   let ret;
   try {
@@ -263,6 +267,11 @@ app.post("/api/add", async (req, res) => {
 // 新增接口：注册设备生成UUID
 app.post("/api/generateUUID", async (req, res) => {
   const { macAddress } = req.body;
+  // 模拟后端处理
+  if (!macAddress) {
+    return res.status(400).json({ error: 'macAddress are required!' });
+  }
+  console.log("get mac", macAddress)
   // 示例用法
   // macAddresss = "12:34:56:78:9A:BC";
   uuid = generateUUID(macAddress);
