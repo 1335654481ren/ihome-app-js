@@ -201,8 +201,8 @@ app.post("/api/uploadfileinfo", async (req, res) => {
   const { file_name } = req.body;
   console.log("filename", file_name);
   // 模拟后端处理
-  if (!macAddress) {
-    return res.status(400).json({ error: 'file_name are required!' });
+  if (!file_name) {
+    console.log("filename is required");
   }
   let code = 0;
   let ret;
