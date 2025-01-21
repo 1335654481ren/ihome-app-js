@@ -1,4 +1,8 @@
 const path = require("path");
+const http = require('http');
+const https = require('https'); // 如果是 HTTPS URL
+const fs = require('fs');
+const querystring = require("querystring");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
