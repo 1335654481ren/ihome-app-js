@@ -198,6 +198,7 @@ app.get("/api/access_token", async (req, res) => {
 app.get("/api/uploadfileinfo", async (req, res) => {
   const { file_name } = req.body;
   let code = 0;
+  let ret;
   try {
     const result = await getToken();
     message = result.message;
@@ -205,7 +206,7 @@ app.get("/api/uploadfileinfo", async (req, res) => {
     if (result.code === 200) {
       console.log("Access Token:", result.token);
       try {
-        const ret = await GetuploadFileInfo(result.token,  file_name);
+        ret = await GetuploadFileInfo(result.token,  file_name);
         message = ret.message;
         code = ret.code;
         if (ret.code === 200) {
