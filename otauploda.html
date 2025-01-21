@@ -18,9 +18,10 @@
     const myFile = document.getElementById('fileInput')
     myFile.addEventListener('change', async function() {
         if(myFile.value != null) {
-        const file = myFile.files[0];
-        const result = await uploadFile(file, `esp32s3_firmeware/${file.name}`)
-        console.log('上传成功：',result)
+            const file = myFile.files[0];
+            console.log("upload", file.name);
+            const result = await uploadFile(file, `esp32s3_firmeware/${file.name}`)
+            console.log('上传成功：',result)
         }
     })
     async function uploadFile(file, path){
@@ -39,7 +40,7 @@
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
+            
             const result = await response.json(); // 解析 JSON 响应数据
             console.log('Response:', result);
             return result;

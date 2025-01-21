@@ -5,7 +5,6 @@ const fs = require('fs');
 const cors = require('cors');
 const querystring = require("querystring");
 const express = require("express");
-const cors = require("cors");
 const morgan = require("morgan");
 const { init: initDB, Counter, DeviceRegistration} = require("./db");
 
