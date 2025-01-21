@@ -22,6 +22,7 @@ const oss_path = "esp32s3_firmeware/test.zip"; // 替换为文件路径
 
 function generateUUID(macAddress) {
   // 获取当前时间戳
+  console.log("MacAddress", macAddress);
   const timestamp = Date.now();
 
   // 创建一个哈希函数 (例如 MD5 或 SHA256)
@@ -196,7 +197,7 @@ app.get("/api/access_token", async (req, res) => {
   });
 });
 
-app.get("/api/uploadfileinfo", async (req, res) => {
+app.post("/api/uploadfileinfo", async (req, res) => {
   const { file_name } = req.body;
   console.log("file = ", file_name);
   let code = 0;
