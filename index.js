@@ -90,6 +90,7 @@ function GetuploadFileInfo(accessToken, file_name) {
     env: "prod-4ghi2bc084652daf", // 云环境 ID
     path: `esp32s3_firmeware/${file_name}`, // 文件路径
   });
+  console.log("data : ", data);
   const options = {
     hostname: "api.weixin.qq.com",
     port: 443,
@@ -197,6 +198,7 @@ app.get("/api/access_token", async (req, res) => {
 
 app.get("/api/uploadfileinfo", async (req, res) => {
   const { file_name } = req.body;
+  console.log("file = ", file_name);
   let code = 0;
   let ret;
   try {
