@@ -2,6 +2,7 @@ const path = require("path");
 const http = require('http');
 const https = require('https'); // 如果是 HTTPS URL
 const fs = require('fs');
+const cors = require('cors');
 const querystring = require("querystring");
 const express = require("express");
 const cors = require("cors");
@@ -14,11 +15,12 @@ const app = express();
 app.use('/static', express.static('static'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors());
-app.use(logger);
 
-const env = "prod-4ghi2bc084652daf"; // 替换为云环境 ID
-const oss_path = "esp32s3_firmeware/test.zip"; // 替换为文件路径
+app.use(cors({
+  origin: 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com', // 替换为允许请求的前端域名
+}));
+
+app.use(logger);
 
 function generateUUID(macAddress) {
   // 获取当前时间戳
