@@ -292,7 +292,7 @@
         alert('Please select a file to upload.');
         return;
       }
-      const file = myFile.files[0];
+      const file = fileInput.files[0];
       const result = await uploadFileInfo(file.name);
       console.log("url", result.data.ret.data.url);
       const formData = new FormData();
