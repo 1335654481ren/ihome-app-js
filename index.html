@@ -293,14 +293,15 @@
         return;
       }
       const file = fileInput.files[0];
+      console.log("file", file.name);
       const result = await uploadFileInfo(file.name);
       console.log("url", result.data.ret.data.url);
       const formData = new FormData();
-      formData.append("key", path);
+      formData.append("key", `esp32s3_firmeware/${file.name}`);
       formData.append("Signature", result.data.ret.data.authorization);
       formData.append("x-cos-security-token", result.data.ret.data.token);
       formData.append("x-cos-meta-fileid", result.data.ret.data.cos_file_id);
-      formData.append("file", file, path);
+      formData.append("file", file);
 
       // Construct FormData
       try {
