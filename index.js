@@ -148,6 +148,10 @@ app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+app.get("/ota", async (req, res) => {
+  res.sendFile(path.join(__dirname, "otaupload.html"));
+});
+
 // 更新计数
 app.post("/api/count", async (req, res) => {
   const { action } = req.body;
