@@ -16,48 +16,56 @@
   <script>
     const url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/uploadfileinfo' // 替换自己的服务域名
     const myFile = document.getElementById('fileInput')
+    async function uploadFileInfo(files) {
+        const url = "https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/uploadfileinfo";
+        const body = {
+            file_name: files
+        };
+
+        try {
+            const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+            });
+
+            // 检查 HTTP 响应状态
+            if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            // 解析响应 JSON 数据
+            const result = await response.json();
+            console.log("Upload successful:", result);
+            return result;
+        } catch (error) {
+            console.error("Error during upload:", error.message);
+        }
+    }
+
     myFile.addEventListener('change', async function() {
         if(myFile.value != null) {
             const file = myFile.files[0];
             console.log("upload", file.name);
+            //const result = uploadFileInfo(file.name);
             const result = await uploadFile(file, `esp32s3_firmeware/${file.name}`)
             console.log('上传成功：',result)
         }
     })
-    async function uploadFile(file, path){
-        try {
-            const response = await fetch(url, {
-            method: 'POST',
-            mode: 'no-cors', // 注意此模式会限制响应的可用性
-            headers: {
-                'Content-Type': 'application/json', // 指定请求内容类型为 JSON
-                'x-wx-source' : 'wx_web_internet_cloudrun_debug',
-                'x-wx-openid' : 'of9P068cW3En83OMk6S6OBxsMXSE',
-            },
-            body: JSON.stringify(file.name), // 将数据序列化为 JSON 字符串
-            });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            
-            const result = await response.json(); // 解析 JSON 响应数据
-            console.log('Response:', result);
-            return result;
-        } catch (error) {
-            console.error('Error:', error);
-            return null;
-        }
-        const resraw = await request(`${url}?path=${path}`)
-        const result = JSON.parse(resraw)
+    async function uploadFile(file, path){
+        const result = await uploadFileInfo(file.name);
+        console.log("url", result.data.ret.data.url);
         const data = new FormData();
-        data.append("key", result.key);
-        data.append("Signature", result.authorization);
-        data.append("x-cos-security-token", result.token);
-        data.append("x-cos-meta-fileid", result.cos_file_id);
+        data.append("key", path);
+        data.append("Signature", result.data.ret.data.authorization);
+        data.append("x-cos-security-token", result.data.ret.data.token);
+        data.append("x-cos-meta-fileid", result.data.ret.data.cos_file_id);
         data.append("file", file, path);
-        const fileraw = await request(result.url, 'POST', data)
-        return result.file_id
+        const fileraw = await request(result.data.ret.data.url, 'POST', data)
+        return result.code
     }
     function request(url,method='GET',data=null){
         return new Promise(function(resolve,reject){
@@ -69,9 +77,11 @@
             }
         });
         xhr.open(method, url);
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+        xhr.setRequestHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         xhr.send(data);
         })
     }
-</script>
+    </script>
 </body>
 </html>

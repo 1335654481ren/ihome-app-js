@@ -19,6 +19,13 @@ app.use(cors({
   origin: 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com', // 替换为允许请求的前端域名
 }));
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); // 或者指定特定的域名
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // 允许的请求方法
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 app.use(logger);
 
 function generateUUID(macAddress) {
@@ -204,6 +211,14 @@ app.post("/api/uploadfileinfo", async (req, res) => {
   // 模拟后端处理
   if (!file_name) {
     console.log("filename is required");
+    res.send({
+      code: 404,
+      data: {
+        message : "file name is null",
+        ret : { code: 404},
+      },
+    });
+    return;
   }
   let code = 0;
   let ret;

@@ -1,3 +1,10 @@
+
+const http = require('http');
+const https = require('https'); // 如果是 HTTPS URL
+const fs = require('fs');
+const path = require('path');
+const querystring = require("querystring");
+
 // get uuid
 function generateUUID(macAddress) {
   // 获取当前时间戳
@@ -24,12 +31,6 @@ const macAddress = "12:34:56:78:9A:BC";
 const uuid = generateUUID(macAddress);
 console.log("Generated UUID:", uuid);
 
-
-const http = require('http');
-const https = require('https'); // 如果是 HTTPS URL
-const fs = require('fs');
-const path = require('path');
-const querystring = require("querystring");
 /**
  * 下载文件的函数
  * @param {string} fileUrl - 文件的下载链接
@@ -65,7 +66,7 @@ function downloadFile(fileUrl, savePath) {
 const fileUrl = 'https://7072-prod-4ghi2bc084652daf-1333806028.tcb.qcloud.la/esp32s3_firmeware/v1.0.1.zip?sign=45044bd9d183f459cfc02dd04a686ea3&t=1737373221'; // 替换为文件的实际 URL
 const savePath = path.resolve(__dirname, './app.zip'); // 保存的文件路径
 
-// downloadFile(fileUrl, savePath);
+downloadFile(fileUrl, savePath);
 
 
 const appId = "wxdac6a220e6df20e8"; // 替换为你的 APPID
