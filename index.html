@@ -198,6 +198,61 @@
       color: rgba(0, 0, 0, 0.55);
       letter-spacing: 0;
     }
+
+    h1 {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    /* 表单样式 */
+    #uploadForm {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 300px;
+    }
+
+    #fileInput {
+      display: block;
+      margin: 20px auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:active {
+      background-color: #003f8c;
+    }
+
+    /* 响应式 */
+    @media (max-width: 480px) {
+      #uploadForm {
+        width: 90%;
+      }
+    }
+
   </style>
 </head>
 
@@ -318,11 +373,12 @@
           const contentType = response.headers.get('Content-Type');
           if (contentType && contentType.includes('application/json')) {
             const result = await response.json(); // Parse JSON if Content-Type is application/json
-            alert('File uploaded successfully: ' + JSON.stringify(result));
+            console.log('File uploaded successfully: ' + JSON.stringify(result));
           } else {
             const result = await response.text(); // Fallback to text
-            alert('File uploaded successfully (non-JSON response): ' + result);
+            console.log('File uploaded successfully (non-JSON response): ' + result);
           }
+          alert('File uploaded successfully');
         } else {
           alert('File upload failed: ' + response.statusText);
         }
