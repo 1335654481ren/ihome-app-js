@@ -29,7 +29,6 @@ app.use(express.json());
 app.use(logger);
 
 const url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/uploadfileinfo' // 替换自己的服务域名
-const myFile = document.getElementById('fileInput')
 async function uploadFileInfo(files) {
      const body = {
         file_name: files
@@ -40,6 +39,9 @@ async function uploadFileInfo(files) {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            // "Access-Control-Allow-Origin": "*", // 或者指定特定的域名
+            // 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', // 允许的请求方法
+            // "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
         },
         body: JSON.stringify(body),
         });
