@@ -1,4 +1,4 @@
-<html lang="en">
+<!-- <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,5 +77,69 @@
         })
     }
     </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+</head>
+<body>
+  <h1>Upload File to Server</h1>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" required />
+    <button type="button" onclick="uploadFile()">Upload</button>
+  </form>
+
+  <script>
+    async function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.files[0]) {
+        alert('Please select a file to upload.');
+        return;
+      }
+
+      // Construct FormData
+      const formData = new FormData();
+      formData.append('key', 'esp32s3_firmeware/app.zip');
+      formData.append(
+        'Signature',
+        'q-sign-algorithm=sha1&q-ak=AKIDcmmbIOq8vYNMLdzhY3mSUC_lzS9eqfWO-HUH6H7cxzx5lBnXPfofDA2NNJsvSZKv&q-sign-time=1737537500;1737538400&q-key-time=1737537500;1737538400&q-header-list=host&q-url-param-list=&q-signature=1bbe59d256cda02620b2d8325178a9a19909d555'
+      );
+      formData.append(
+        'x-cos-security-token',
+        'eGBS6NIx5xnXlRpgXp9ovjUH7esUj6ma82f5c35112539e425e688eed44075cf4iEvhrCLe89qL-z5d8LzvE-Pwr44n2GuZdZKFJU6eIdhksoVwO1EBg_cbo4GAk6RAtFqybX5a-yEvxmq3T-R88__VdS5WLeL2Ki2VgQTJWTANgG1DtWkk1cLCKLdbu2iAIs1kk7BPugXWvPNYRrH81iuZ1X5ENBxm4eR7U02SgUJLuq6r-EcdFYgsleDGn-QDCWHKYYAgPOeVpWNROS22YtNUyPzIGzsK7PSSOs7VDMcFeTfej1Ykd3l9VLEPF6uVxPm16pC1_uUt7Qp3AgrYyJFr5xk87e6q7iYZ4WpuqGT0yFvhtTkD26VI0y6zfrow5pLQ0_TlFnEgi3hZKfh1gs01w_2XGkPNKV_ErsJnOdyKNtspTHGD2fAAGuRWo2pO'
+      );
+      formData.append(
+        'x-cos-meta-fileid',
+        'HJI8OWlQW8aSRtQlBRqPz1oCrd0P+khAmODoWj0HNeRN7s31hs0GLBprKUM1BHrrWXXN9crjKw4vvW6OZz1JHlUWUhmf+L1XN+si1NWbilrqrmgnSIcfemYZoZnJ9dEP2pG6W0IhrHkS1wuG1ZK+Sc+YuTwskGfehz2aV8fpRrkAZQkuXqKXV47cI1OsZ8W9sw=='
+      );
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch(
+          'https://7072-prod-4ghi2bc084652daf-1333806028.cos.ap-shanghai.myqcloud.com/esp32s3_firmeware/app.zip',
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          alert('File uploaded successfully: ' + JSON.stringify(result));
+        } else {
+          alert('File upload failed: ' + response.statusText);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during the upload.');
+      }
+    }
+  </script>
 </body>
 </html>
