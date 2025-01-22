@@ -217,6 +217,9 @@
       </span>
       <a class="btn btn-success btn-lg count-button" style="background: #07c160; border: 0"
         onclick="set('inc')">计数+1</a>
+      <br></br>
+      <a class="btn btn-success btn-lg count-button" style="background: #07c160; border: 0"
+        onclick="otauploadfile()">OTA</a>
       <div class="card" style="width: 320px; margin-bottom: 48px;">
         <div class="card-body">
           <img class="qrcode middle"
@@ -254,6 +257,9 @@
         $(".count-number").html(res.data);
       }
     });
+  }
+  function otauploadfile() {
+    window.location.href = "/otaupload.html";
   }
 </script>
 
