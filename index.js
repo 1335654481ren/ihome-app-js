@@ -28,6 +28,73 @@ app.use(express.json());
 
 app.use(logger);
 
+const url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/uploadfileinfo' // 替换自己的服务域名
+const myFile = document.getElementById('fileInput')
+async function uploadFileInfo(files) {
+     const body = {
+        file_name: files
+    };
+
+    try {
+        const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        });
+        // 检查 HTTP 响应状态
+        if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // 解析响应 JSON 数据
+        const result = await response.json();
+        console.log("Upload successful:", result);
+        return result;
+    } catch (error) {
+        console.error("Error during upload:", error.message);
+    }
+}
+
+myFile.addEventListener('change', async function() {
+    if(myFile.value != null) {
+        const file = myFile.files[0];
+        console.log("upload", file.name);
+        //const result = uploadFileInfo(file.name);
+        const result = await uploadFile(file, `esp32s3_firmeware/${file.name}`)
+        console.log('上传成功：',result)
+    }
+})
+
+async function uploadFile(file, path){
+    const result = await uploadFileInfo(file.name);
+    console.log("url", result.data.ret.data.url);
+    const data = new FormData();
+    data.append("key", path);
+    data.append("Signature", result.data.ret.data.authorization);
+    data.append("x-cos-security-token", result.data.ret.data.token);
+    data.append("x-cos-meta-fileid", result.data.ret.data.cos_file_id);
+    data.append("file", file, path);
+    const fileraw = await request(result.data.ret.data.url, 'POST', data)
+    return result.code
+}
+function request(url,method='GET',data=null){
+    return new Promise(function(resolve,reject){
+    const xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    xhr.addEventListener("readystatechange", function() {
+        if(this.readyState === 4) {
+        resolve(this.responseText)
+        }
+    });
+    xhr.open(method, url);
+    // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+    // xhr.setRequestHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    xhr.send(data);
+    })
+}
+
 function generateUUID(macAddress) {
   // 获取当前时间戳
   console.log("MacAddress", macAddress);

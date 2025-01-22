@@ -224,6 +224,11 @@
           <small class="card-text" style="display: flex; justify-content: center; margin-top: 8px">扫码进入小程序</small>
         </div>
       </div>
+      <h1>Upload a File</h1>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fileInput">Choose a file:</label>
+        <input type="file" id="fileInput" name="file" required>
+      </form>
       <a class="btn btn-success btn-lg count-button" style="background: #07c160; border: 0"
         onclick="otauploadfile()">OTA</a>
     </div>
