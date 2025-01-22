@@ -314,8 +314,15 @@
         );
 
         if (response.ok) {
-          const result = await response.json();
-          alert('File uploaded successfully: ' + JSON.stringify(result));
+          // Check the Content-Type to determine how to handle the response
+          const contentType = response.headers.get('Content-Type');
+          if (contentType && contentType.includes('application/json')) {
+            const result = await response.json(); // Parse JSON if Content-Type is application/json
+            alert('File uploaded successfully: ' + JSON.stringify(result));
+          } else {
+            const result = await response.text(); // Fallback to text
+            alert('File uploaded successfully (non-JSON response): ' + result);
+          }
         } else {
           alert('File upload failed: ' + response.statusText);
         }
