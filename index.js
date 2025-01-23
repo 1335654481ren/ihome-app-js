@@ -132,6 +132,55 @@ function GetuploadFileInfo(accessToken, file_name) {
   });
 }
 
+function GetDownloadFileInfo(cloud_file_id) {
+  const data = JSON.stringify({
+    env: "prod-4ghi2bc084652daf", // 云环境 ID
+    path: `esp32s3_firmeware/${file_name}`, // 文件路径
+  });
+  console.log("data : ", data);
+  const options = {
+    hostname: "api.weixin.qq.com",
+    port: 443,
+    path: `/tcb/uploadfile?access_token=${accessToken}`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": data.length,
+    },
+  };
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let responseData = "";
+      // 接收数据
+      res.on("data", (chunk) => {
+        responseData += chunk;
+      });
+      // 数据接收完成
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(responseData);
+
+          if (json.errcode === 0) {
+            resolve({ code: 200, data: json });
+          } else {
+            resolve({ code: json.errcode, message: json.errmsg });
+          }
+        } catch (error) {
+          reject({ code: 500, message: "Failed to parse response" });
+        }
+      });
+    });
+    // 请求错误处理
+    req.on("error", (error) => {
+      reject({ code: 500, message: error.message });
+    });
+    // 写入请求数据
+    req.write(data);
+    // 结束请求
+    req.end();
+  });
+}
+
 // 首页
 app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -251,6 +300,7 @@ app.post("/api/uploadfileinfo", async (req, res) => {
 });
 
 
+
 // 新增接口：接收两个数并返回它们的和
 app.post("/api/add", async (req, res) => {
   const { a, b } = req.body;
@@ -271,6 +321,43 @@ app.post("/api/add", async (req, res) => {
       sum,
     },
   });
+});
+
+// 新增接口：注册设备生成UUID
+app.post("/api/save_firmware_info", async (req, res) => {
+  // Response: { "firmware": { "version": "1.0.0", "url": "http://" } }
+  const { device_type_, firmware_version_, oss_fileid_, md5_ } = req.body;
+  // 模拟后端处理
+  if (!firmware_version_) {
+    return res.status(400).json({ error: 'firmware_version_ are required!' });
+  }
+  console.log("get ota firmware_version_", firmware_version_)
+  // 插入数据
+  try {
+    // 插入数据
+    const newRecord = await OTAInfo.create({
+      deviceType: device_type_, // 设备类型
+      status: "inactive", // 状态
+      version: firmware_version_,
+      md5: md5_,
+      fileid: oss_fileid_, // 文件 ID
+      billingTime: new Date(), // 可选的计费时间
+    });
+    console.log("New record added:", newRecord.toJSON());
+    // 查询数据
+    const allRecords = await OTAInfo.findAll();
+    console.log("All records:", allRecords.map((record) => record.toJSON()));
+    res.send({
+      code: 200,
+      errmsg: 'ok'
+    });
+  } catch (error) {
+    console.error("Error during operation:", error);
+    res.send({
+      code: 401,
+      errmsg: error
+    });
+  } 
 });
 
 // 新增接口：注册设备生成UUID

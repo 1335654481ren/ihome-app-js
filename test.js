@@ -208,5 +208,128 @@ async function  getinfo() {
   }
 }
 
+//getinfo()
 
-getinfo()
+function GetDownloadInfo(accessToken, cloudFileId) {
+  return new Promise((resolve, reject) => {
+    const url = `https://api.weixin.qq.com/tcb/batchdownloadfile?access_token=${accessToken}`;
+    const payload = JSON.stringify({
+      env: "prod-4ghi2bc084652daf", // Replace with your Cloud Environment ID
+      file_list: [
+        { fileid: cloudFileId, max_age: 7200 }
+      ]
+    });
+    // Configure the HTTP request options
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(payload),
+      },
+    };
+    // Create the HTTP request
+    const req = https.request(url, options, (res) => {
+      let data = "";
+      // Collect data chunks
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      // Resolve the Promise once all data is received
+      res.on("end", () => {
+        if (res.statusCode === 200) {
+          try {
+            const result = JSON.parse(data);
+            resolve({ code: 200, errmsg: result.errmsg, data: result });
+          } catch (error) {
+            resolve({ code: 400, errmsg: "json parser error" });
+          }
+        } else {
+          resolve({ code: res.statusCode, errmsg: res.statusMessage });
+        }
+      });
+    });
+    // Handle request errors
+    req.on("error", (error) => {
+      reject(new Error("Request error: " + error.message));
+      resolve({ code: 401, errmsg: error.message });
+    });
+    // Write the payload and end the request
+    req.write(payload);
+    req.end();
+  });
+}
+
+async function  downloadinfo() {
+  const cloudFileId = "cloud://prod-4ghi2bc084652daf.7072-prod-4ghi2bc084652daf-1333806028/esp32s3_firmeware/v1.0.1.zip";
+  try {
+    const result = await getToken(appId, appSecret);
+    if (result.code === 200) {
+      console.log("Access Token:", result.token);
+      try {
+        let access_token = result.token;
+        const ret = await GetDownloadInfo(access_token, cloudFileId);
+        if (ret.code === 200) {
+          console.log("File upload response:", ret);
+          console.log("File upload url:", ret.data.file_list[0].download_url);
+        } else {
+          console.error("Error:", ret.message || `Code: ${ret.code}`);
+        }
+      } catch (error) {
+        console.error("Failed to upload file:", error);
+      }
+    } else {
+      console.error("Error:", result.message || `Code: ${result.code}`);
+    }
+  } catch (error) {
+    console.error("Failed to fetch token:", error);
+  }
+}
+
+//downloadinfo()
+
+async function save_firmware_info(device_type_, version_, file_id_) {
+  const body = {
+    device_type: device_type_,
+    firmware_version: version_,
+    oss_fileid: file_id_
+  };
+  try {
+      const response = await fetch('https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/save_firmware_info', {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      });
+      // 检查 HTTP 响应状态
+      if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // 解析响应 JSON 数据
+      const result = await response.json();
+      console.log("Upload successful:", result);
+      return result;
+  } catch (error) {
+      console.error("Error during upload:", error.message);
+  }
+}
+
+const file_name = "ESP32S3-1-V1.0.1.zip";
+const fileid = 'cloud://prod-4ghi2bc084652daf.7072-prod-4ghi2bc084652daf-1333806028/esp32s3_firmeware/v1.0.1.zip';
+// 正则表达式匹配
+const match = file_name.match(/(ESP32S3-\d+)-V(\d+\.\d+\.\d+)/);
+if (match) {
+  const devic_type = match[1]; // 提取 ESP32S3-1
+  const version = match[2]; // 提取 1.0.1
+  console.log("devic_type 1:", devic_type);
+  console.log("version 2:", version);
+  const rett = await save_firmware_info(devic_type, version, fileid);
+  console.log("version 2:", rett);
+  if(rett.code === 200) {
+    console.log('File info save successfully');
+  } 
+} else {
+  console.log('File name format error: ' + file.name);
+}

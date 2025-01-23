@@ -60,13 +60,8 @@ const DeviceRegistration = sequelize.define("DeviceRegistration", {
   },
 });
 
-
-// 定义设备注册信息模型
-const OTAInfo = sequelize.define("OTAInfo", {
-  deviceName: {
-    type: DataTypes.STRING,
-    allowNull: false, // 设备名称不能为空
-  },
+// 定义固件信息
+const FirmwareInfo = sequelize.define("OTAInfo", {
   deviceType: {
     type: DataTypes.STRING,
     allowNull: false, // 设备类型不能为空
@@ -75,6 +70,21 @@ const OTAInfo = sequelize.define("OTAInfo", {
     type: DataTypes.STRING,
     allowNull: false, // 当前状态不能为空
     defaultValue: "inactive", // 默认状态为 inactive
+  },
+  version: {
+    type: DataTypes.STRING,
+    allowNull: false, // 当前状态不能为空
+    defaultValue: "0.0.0", // 默认状态为 0.0.1
+  },
+  md5: {
+    type: DataTypes.STRING,
+    allowNull: false, // 当前状态不能为空
+    defaultValue: "", // 默认状态为
+  },
+  fileid: {
+    type: DataTypes.STRING,
+    allowNull: false, // 当前状态不能为空
+    defaultValue: "", // 文件在oss的fileid
   },
   registrationTime: {
     type: DataTypes.DATE,
@@ -90,6 +100,7 @@ const OTAInfo = sequelize.define("OTAInfo", {
 // 数据库初始化方法
 async function init() {
   await Counter.sync({ alter: true });
+  await FirmwareInfo.sync({ alter: true });
   await DeviceRegistration.sync({ alter: true }); // 同步模型到数据库
 }
 
@@ -98,5 +109,5 @@ module.exports = {
   init,
   Counter,
   DeviceRegistration,
-  OTAInfo,
+  FirmwareInfo,
 };
