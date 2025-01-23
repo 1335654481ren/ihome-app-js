@@ -6,7 +6,7 @@ const cors = require('cors');
 const querystring = require("querystring");
 const express = require("express");
 const morgan = require("morgan");
-const { init: initDB, Counter, DeviceRegistration} = require("./db");
+const { init: initDB, Counter, DeviceRegistration, FirmwareInfo} = require("./db");
 
 const logger = morgan("tiny");
 
@@ -345,7 +345,7 @@ app.post("/api/save_firmware_info", async (req, res) => {
     });
     console.log("New record added:", newRecord.toJSON());
     // 查询数据
-    const allRecords = await OTAInfo.findAll();
+    const allRecords = await FirmwareInfo.findAll();
     console.log("All records:", allRecords.map((record) => record.toJSON()));
     res.send({
       code: 200,

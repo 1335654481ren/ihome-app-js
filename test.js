@@ -64,7 +64,7 @@ function downloadFile(fileUrl, savePath) {
 
 // 示例使用
 const fileUrl = 'https://7072-prod-4ghi2bc084652daf-1333806028.tcb.qcloud.la/esp32s3_firmeware/v1.0.1.zip?sign=45044bd9d183f459cfc02dd04a686ea3&t=1737373221'; // 替换为文件的实际 URL
-const savePath = path.resolve(__dirname, './app.zip'); // 保存的文件路径
+const savePath = path.resolve(__dirname, './ESP32S3-1-V1.0.1.zip'); // 保存的文件路径
 
 downloadFile(fileUrl, savePath);
 
@@ -288,11 +288,12 @@ async function  downloadinfo() {
 
 //downloadinfo()
 
-async function save_firmware_info(device_type_, version_, file_id_) {
+async function save_firmware_info(device_type__, version__, file_id__, md5__) {
   const body = {
-    device_type: device_type_,
-    firmware_version: version_,
-    oss_fileid: file_id_
+    device_type_: device_type__,
+    firmware_version_: version__,
+    oss_fileid_: file_id__,
+    md5: md5__
   };
   try {
       const response = await fetch('https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/save_firmware_info', {
