@@ -61,7 +61,7 @@ const DeviceRegistration = sequelize.define("DeviceRegistration", {
 });
 
 // 定义固件信息
-const FirmwareInfo = sequelize.define("OTAInfo", {
+const FirmwareInfo = sequelize.define("FirmwareInfo", {
   deviceType: {
     type: DataTypes.STRING,
     allowNull: false, // 设备类型不能为空

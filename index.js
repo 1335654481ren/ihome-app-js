@@ -335,7 +335,7 @@ app.post("/api/save_firmware_info", async (req, res) => {
   // 插入数据
   try {
     // 插入数据
-    const newRecord = await OTAInfo.create({
+    const newRecord = await FirmwareInfo.create({
       deviceType: device_type_, // 设备类型
       status: "inactive", // 状态
       version: firmware_version_,
