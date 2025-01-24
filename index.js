@@ -163,7 +163,7 @@ function GetDownloadFileInfo(accessToken, cloud_file_id) {
       res.on("end", () => {
         try {
           const json = JSON.parse(responseData);
-          console.log("downlod :", json);
+
           if (json.errcode === 0) {
             resolve({ code: 200, data: json });
           } else {
