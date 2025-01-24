@@ -311,7 +311,7 @@ app.post("/api/getNewVersion", async (req, res) => {
     // 查询版本小于指定版本的记录
     const records = await FirmwareInfo.findAll({
       where: {
-        deviceType: deviceType,
+        deviceType: device_type,
         version: {
           [Op.gt]: version, // 小于输入版本
         },
