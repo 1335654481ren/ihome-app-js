@@ -396,12 +396,12 @@
       formData.append("x-cos-security-token", result.data.ret.data.token);
       formData.append("x-cos-meta-fileid", result.data.ret.data.cos_file_id);
       formData.append("file", file);
-      const arrayBuffer = await file.arrayBuffer(); // 读取文件为 ArrayBuffer
-      // 使用 SubtleCrypto 计算 MD5 哈希
-      const hashBuffer = await crypto.subtle.digest('MD5', arrayBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer)); // 转换为字节数组
-      const md5_ = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 转换为十六进制字符串
-
+      // const arrayBuffer = await file.arrayBuffer(); // 读取文件为 ArrayBuffer
+      // // 使用 SubtleCrypto 计算 MD5 哈希
+      // const hashBuffer = await crypto.subtle.digest('MD5', arrayBuffer);
+      // const hashArray = Array.from(new Uint8Array(hashBuffer)); // 转换为字节数组
+      // const md5_ = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 转换为十六进制字符串
+      const md5_ = "KDJFEINBND*&F*^DIFUUDIFDJFN445k";
       console.log('File MD5:', md5_);
       // Construct FormData
       try {
