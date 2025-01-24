@@ -22,7 +22,11 @@
 		"PolicyThreshold": 80
 	}
   ],
-  "envParams": {},
+  "envParams": {
+    "MYSQL_ADDRESS": "10.18.110.77:3306",
+    "MYSQL_USERNAME": "root",
+    "MYSQL_PASSWORD": "qrug5EKh"
+  },
   "customLogs": "stdout",
   "initialDelaySeconds": 2,
   "dataBaseName": "nodejs_demo",

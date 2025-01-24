@@ -83,6 +83,7 @@ function getToken() {
     req.end();
   });
 }
+
 function GetuploadFileInfo(accessToken, file_name) {
   const data = JSON.stringify({
     env: "prod-4ghi2bc084652daf", // 云环境 ID
@@ -299,8 +300,6 @@ app.post("/api/uploadfileinfo", async (req, res) => {
   });
 });
 
-
-
 // 新增接口：接收两个数并返回它们的和
 app.post("/api/add", async (req, res) => {
   const { a, b } = req.body;
@@ -326,7 +325,7 @@ app.post("/api/add", async (req, res) => {
 // 新增接口：注册设备生成UUID
 app.post("/api/save_firmware_info", async (req, res) => {
   // Response: { "firmware": { "version": "1.0.0", "url": "http://" } }
-  const { device_type_, firmware_version_, oss_fileid_, md5_ } = req.body;
+  const { device_type, firmware_version, oss_fileid, md5s } = req.body;
   // 模拟后端处理
   if (!firmware_version_) {
     return res.status(400).json({ error: 'firmware_version_ are required!' });
@@ -336,11 +335,11 @@ app.post("/api/save_firmware_info", async (req, res) => {
   try {
     // 插入数据
     const newRecord = await FirmwareInfo.create({
-      deviceType: device_type_, // 设备类型
+      deviceType: device_type, // 设备类型
       status: "inactive", // 状态
-      version: firmware_version_,
-      md5: md5_,
-      fileid: oss_fileid_, // 文件 ID
+      version: firmware_version,
+      md5: md5s,
+      fileid: oss_fileid, // 文件 ID
       billingTime: new Date(), // 可选的计费时间
     });
     console.log("New record added:", newRecord.toJSON());

@@ -283,6 +283,12 @@
         <input type="file" id="fileInput" name="file" required />
         <button type="button" onclick="uploadFile()">Upload</button>
       </form>
+      <div style="margin-top: 20px;">
+        <h3>Current Input:</h3>
+        <p><strong>Device Type:</strong> <span id="deviceType">N/A</span></p>
+        <p><strong>Version:</strong> <span id="Version">N/A</span></p>
+        <p><strong>File ID:</strong> <span id="FileId">N/A</span></p>
+      </div>
     </div>
   </div>
 </body>
@@ -290,6 +296,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script>
+  const host_url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/';
+  //const host_url = 'http://127.0.0.1:27082/';
   init();
   function init() {
     $.ajax("/api/count", {
@@ -320,7 +328,8 @@
           file_name: files
       };
       try {
-          const response = await fetch('https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/uploadfileinfo', {
+          const url = host_url + "api/uploadfileinfo";
+          const response = await fetch(url, {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
@@ -341,11 +350,12 @@
       }
   }
 
-  async function save_firmware_info(device_type_, version_, file_id_) {
+  async function save_firmware_info(device_type_, version_, file_id_, md5_) {
       const body = {
         device_type: device_type_,
         firmware_version: version_,
-        oss_fileid: file_id_
+        oss_fileid: file_id_,
+        md5s: md5_
       };
       try {
           const response = await fetch('https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/save_firmware_info', {
@@ -385,7 +395,13 @@
       formData.append("x-cos-security-token", result.data.ret.data.token);
       formData.append("x-cos-meta-fileid", result.data.ret.data.cos_file_id);
       formData.append("file", file);
+      const arrayBuffer = await file.arrayBuffer(); // 读取文件为 ArrayBuffer
+      // 使用 SubtleCrypto 计算 MD5 哈希
+      const hashBuffer = await crypto.subtle.digest('MD5', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer)); // 转换为字节数组
+      const md5_ = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // 转换为十六进制字符串
 
+      console.log('File MD5:', md5_);
       // Construct FormData
       try {
         const response = await fetch(
@@ -413,10 +429,13 @@
             const version = match[2]; // 提取 1.0.1
             console.log("devic_type 1:", devic_type);
             console.log("version 2:", version);
-            const rett = await save_firmware_info(devic_type, version, result.data.ret.data.file_id);
+            const rett = await save_firmware_info(devic_type, version, result.data.ret.data.file_id, md5_);
             console.log("version 2:", rett);
             if(rett.code === 200) {
               alert('File info save successfully');
+              document.getElementById('deviceType').textContent = devic_type;
+              document.getElementById('Version').textContent = version;
+              document.getElementById('FileId').textContent = version;
             } 
           } else {
             alert('File name format error: ' + file.name);
