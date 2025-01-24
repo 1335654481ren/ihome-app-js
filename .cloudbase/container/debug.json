@@ -29,9 +29,9 @@
         }
       ],
       "envParams": {
-        "MYSQL_ADDRESS": "10.18.110.77:3306",
-        "MYSQL_USERNAME": "root",
-        "MYSQL_PASSWORD": "qrug5EKh"
+        "MYSQL_ADDRESS": "",
+        "MYSQL_USERNAME": "",
+        "MYSQL_PASSWORD": ""
       },
       "customLogs": "stdout",
       "initialDelaySeconds": 2,
