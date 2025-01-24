@@ -138,11 +138,9 @@ function GetuploadFileInfo(accessToken, file_name) {
 
 function GetDownloadFileInfo(accessToken, cloud_file_id) {
   const data = JSON.stringify({
-    access_token: accessToken,
     env: "prod-4ghi2bc084652daf", // 云环境 ID
-    file_list: [{"fileid": cloud_file_id, "max_age": 7200}], // 文件路径
+    file_list: [{fileid: cloud_file_id, max_age: 7200}], // 文件路径
   });
-
   console.log("data : ", data);
   const options = {
     hostname: "api.weixin.qq.com",
@@ -165,7 +163,7 @@ function GetDownloadFileInfo(accessToken, cloud_file_id) {
       res.on("end", () => {
         try {
           const json = JSON.parse(responseData);
-
+          console.log("downlod :", json);
           if (json.errcode === 0) {
             resolve({ code: 200, data: json });
           } else {
@@ -335,14 +333,16 @@ app.post("/api/getNewVersion", async (req, res) => {
       console.log("Record:", info_record);
       console.log("fild id :", info_record[0].fileid);
       const ret = await GetDownloadFileInfo(gAccessToken, info_record[0].fileid);
-      res.send({
-        code: 200,
-        errmsg: "ok",
-        data: {
-          version: info_record[0].version,
-          url: ret.data.file_list[0].download_url
-        }
-      });
+      if (ret.code === 200) {
+        res.send({
+          code: 200,
+          errmsg: "ok",
+          data: {
+            version: info_record[0].version,
+            url: ret.data.file_list[0].download_url
+          }
+        });
+      }
     }
   } catch (error) {
     console.error("Error during querying:", error);
