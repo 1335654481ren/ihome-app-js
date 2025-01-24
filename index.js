@@ -163,7 +163,7 @@ function GetDownloadFileInfo(accessToken, cloud_file_id) {
       res.on("end", () => {
         try {
           const json = JSON.parse(responseData);
-
+          console.log(" req", json);
           if (json.errcode === 0) {
             resolve({ code: 200, data: json });
           } else {
@@ -341,6 +341,11 @@ app.post("/api/getNewVersion", async (req, res) => {
             version: info_record[0].version,
             url: ret.data.file_list[0].download_url
           }
+        });
+      } else {
+        res.send({
+          code: 500,
+          errmsg: ret.message,
         });
       }
     }
