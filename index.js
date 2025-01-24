@@ -18,6 +18,8 @@ app.use(express.json());
 
 app.use(logger);
 
+var gAccessToken = ''
+
 function generateUUID(macAddress) {
   // 获取当前时间戳
   console.log("MacAddress", macAddress);
@@ -134,16 +136,18 @@ function GetuploadFileInfo(accessToken, file_name) {
   });
 }
 
-function GetDownloadFileInfo(cloud_file_id) {
+function GetDownloadFileInfo(accessToken, cloud_file_id) {
   const data = JSON.stringify({
+    access_token: accessToken,
     env: "prod-4ghi2bc084652daf", // 云环境 ID
-    path: `esp32s3_firmeware/${file_name}`, // 文件路径
+    file_list: [{"fileid": cloud_file_id, "max_age": 7200}], // 文件路径
   });
+
   console.log("data : ", data);
   const options = {
     hostname: "api.weixin.qq.com",
     port: 443,
-    path: `/tcb/uploadfile?access_token=${accessToken}`,
+    path: `/tcb/batchdownloadfile?access_token=${accessToken}`,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -426,10 +430,46 @@ app.post("/api/generateUUID", async (req, res) => {
   });
 });
 
+// 新增接口：注册设备生成UUID
+app.post("/api/getdownloadurl", async (req, res) => {
+  const { fileid } = req.body;
+  // 模拟后端处理
+  if (!fileid) {
+    return res.status(400).json({ error: 'fileid are required!' });
+  }
+  console.log("get fileid", fileid)
+  // 示例用法
+  const result = GetDownloadFileInfo(gAccessToken, fileid);
+  console.log("Generated result:", result);
+  res.send({
+    code: 0,
+    data: result
+  });
+});
+
 const port = process.env.PORT || 80;
 
 async function bootstrap() {
   await initDB();
+   // 定时更新 Token 的函数
+   async function updateToken() {
+    try {
+      console.log("开始更新 Token...");
+      // 调用获取新 Token 的逻辑
+      const result = await getToken();
+      if (result.code === 200) {
+        console.log("Access Token:", result.token);
+        gAccessToken = result.token;
+      }
+    } catch (error) {
+      console.error("更新 Token 失败:", error.message);
+    }
+  }
+  // 启动时立即获取一次 Token
+  await updateToken();
+  // 每小时更新一次 Token (3600000 毫秒)
+  setInterval(updateToken, 3600000);
+
   app.listen(port, () => {
     console.log("启动成功", port);
   });
