@@ -4,6 +4,8 @@ const https = require('https'); // 如果是 HTTPS URL
 const fs = require('fs');
 const path = require('path');
 const querystring = require("querystring");
+const host_url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/';
+// const host_url = 'http://127.0.0.1:27082/';
 
 // get uuid
 function generateUUID(macAddress) {
@@ -66,7 +68,7 @@ function downloadFile(fileUrl, savePath) {
 const fileUrl = 'https://7072-prod-4ghi2bc084652daf-1333806028.tcb.qcloud.la/esp32s3_firmeware/v1.0.1.zip?sign=45044bd9d183f459cfc02dd04a686ea3&t=1737373221'; // 替换为文件的实际 URL
 const savePath = path.resolve(__dirname, './ESP32S3-1-V1.0.1.zip'); // 保存的文件路径
 
-downloadFile(fileUrl, savePath);
+//downloadFile(fileUrl, savePath);
 
 
 const appId = "wxdac6a220e6df20e8"; // 替换为你的 APPID
@@ -317,20 +319,55 @@ async function save_firmware_info(device_type__, version__, file_id__, md5__) {
   }
 }
 
-const file_name = "ESP32S3-1-V1.0.1.zip";
-const fileid = 'cloud://prod-4ghi2bc084652daf.7072-prod-4ghi2bc084652daf-1333806028/esp32s3_firmeware/v1.0.1.zip';
-// 正则表达式匹配
-const match = file_name.match(/(ESP32S3-\d+)-V(\d+\.\d+\.\d+)/);
-if (match) {
-  const devic_type = match[1]; // 提取 ESP32S3-1
-  const version = match[2]; // 提取 1.0.1
-  console.log("devic_type 1:", devic_type);
-  console.log("version 2:", version);
-  const rett = await save_firmware_info(devic_type, version, fileid);
-  console.log("version 2:", rett);
-  if(rett.code === 200) {
-    console.log('File info save successfully');
-  } 
-} else {
-  console.log('File name format error: ' + file.name);
+async function uploadfile() {
+  const file_name = "ESP32S3-1-V1.0.1.zip";
+  const fileid = 'cloud://prod-4ghi2bc084652daf.7072-prod-4ghi2bc084652daf-1333806028/esp32s3_firmeware/v1.0.1.zip';
+  // 正则表达式匹配
+  const match = file_name.match(/(ESP32S3-\d+)-V(\d+\.\d+\.\d+)/);
+  if (match) {
+    const devic_type = match[1]; // 提取 ESP32S3-1
+    const version = match[2]; // 提取 1.0.1
+    console.log("devic_type 1:", devic_type);
+    console.log("version 2:", version);
+    const rett = await save_firmware_info(devic_type, version, fileid);
+    console.log("version 2:", rett);
+    if(rett.code === 200) {
+      console.log('File info save successfully');
+    } 
+  } else {
+    console.log('File name format error: ' + file.name);
+  }
 }
+
+// uploadfile();
+
+async function GetNewVersion() {
+  const deviceType = "ESP32S3-1";
+  const version = "1.0.1";
+
+  try {
+    const url = host_url + "api/getNewVersion";
+    const response = await fetch(url, { // 替换为实际的 API 地址
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        device_type: deviceType,
+        version: version,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("result:", result);
+
+  } catch (error) {
+    console.error('Error fetching new version:', error.message);
+  }
+}
+
+GetNewVersion()
