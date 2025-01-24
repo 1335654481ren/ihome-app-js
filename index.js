@@ -327,10 +327,10 @@ app.post("/api/save_firmware_info", async (req, res) => {
   // Response: { "firmware": { "version": "1.0.0", "url": "http://" } }
   const { device_type, firmware_version, oss_fileid, md5s } = req.body;
   // 模拟后端处理
-  if (!firmware_version_) {
+  if (!firmware_version) {
     return res.status(400).json({ error: 'firmware_version_ are required!' });
   }
-  console.log("get ota firmware_version_", firmware_version_)
+  console.log("get ota firmware_version", firmware_version)
   // 插入数据
   try {
     // 插入数据
