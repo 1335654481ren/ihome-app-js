@@ -333,13 +333,13 @@ app.post("/api/getNewVersion", async (req, res) => {
     } else {
       const info_record = records.map((record) => record.toJSON());
       console.log("Record:", info_record);
-      console.log("Record:", info_record.data[0]);
-      const ret = await GetDownloadFileInfo(info_record.data[0].fileid);
+      console.log("fild id :", info_record[0].fileid);
+      const ret = await GetDownloadFileInfo(gAccessToken, info_record[0].fileid);
       res.send({
         code: 200,
         errmsg: "ok",
         data: {
-          version: info_record.data[0].version,
+          version: info_record[0].version,
           url: ret.data.file_list[0].download_url
         }
       });
@@ -439,7 +439,7 @@ app.post("/api/getdownloadurl", async (req, res) => {
   }
   console.log("get fileid", fileid)
   // 示例用法
-  const result = GetDownloadFileInfo(gAccessToken, fileid);
+  const result = await GetDownloadFileInfo(gAccessToken, fileid);
   console.log("Generated result:", result);
   res.send({
     code: 0,
