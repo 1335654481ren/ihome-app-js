@@ -308,6 +308,7 @@ app.post("/api/getNewVersion", async (req, res) => {
   }
   // 查询数据
   try {
+    const { Op } = require('sequelize');
     // 查询版本小于指定版本的记录
     const records = await FirmwareInfo.findAll({
       where: {
