@@ -306,8 +306,10 @@ app.post("/api/getNewVersion", async (req, res) => {
       message: "参数无效，请传递两个数字。",
     });
   }
+
   // 查询数据
   try {
+    const { Op } = require('sequelize');
     // 查询版本小于指定版本的记录
     const records = await FirmwareInfo.findAll({
       where: {
@@ -325,10 +327,15 @@ app.post("/api/getNewVersion", async (req, res) => {
         errmsg: 'No matching records found',
       });
     } else {
+      const info_record = records.map((record) => record.toJSON());
+      const ret = await GetDownloadFileInfo(info_record.data[0].fileid);
       res.send({
         code: 200,
         errmsg: "ok",
-        data: records.map((record) => record.toJSON()),
+        data: {
+          version: info_record.data[0].version,
+          url: ret.data.file_list[0].download_url
+        }
       });
     }
   } catch (error) {

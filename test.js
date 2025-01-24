@@ -343,7 +343,7 @@ async function uploadfile() {
 
 async function GetNewVersion() {
   const deviceType = "ESP32S3-1";
-  const version = "1.0.1";
+  const version = "1.1.1";
 
   try {
     const url = host_url + "api/getNewVersion";
@@ -364,10 +364,11 @@ async function GetNewVersion() {
 
     const result = await response.json();
     console.log("result:", result);
+    console.log("FileId:", result.data[0].fileid);
 
   } catch (error) {
     console.error('Error fetching new version:', error.message);
   }
 }
 
-GetNewVersion()
+//GetNewVersion()
