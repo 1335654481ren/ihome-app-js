@@ -7,6 +7,7 @@ const querystring = require("querystring");
 const express = require("express");
 const morgan = require("morgan");
 const { init: initDB, Counter, DeviceRegistration, FirmwareInfo} = require("./db");
+const { error } = require("console");
 
 const logger = morgan("tiny");
 
@@ -187,10 +188,6 @@ app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.get("/ota", async (req, res) => {
-  res.sendFile(path.join(__dirname, "otaupload.html"));
-});
-
 // 更新计数
 app.post("/api/count", async (req, res) => {
   const { action } = req.body;
@@ -299,7 +296,49 @@ app.post("/api/uploadfileinfo", async (req, res) => {
     },
   });
 });
+// 新增接口：接收两个数并返回它们的和
+app.post("/api/getNewVersion", async (req, res) => {
+  const { device_type, version } = req.body;
+  // 校验输入
+  if (!device_type || !version)  {
+    return res.status(400).send({
+      code: 1,
+      message: "参数无效，请传递两个数字。",
+    });
+  }
+  // 查询数据
+  try {
+    // 查询版本小于指定版本的记录
+    const records = await FirmwareInfo.findAll({
+      where: {
+        deviceType: deviceType,
+        version: {
+          [Op.gt]: version, // 小于输入版本
+        },
+      },
+      order: [['version', 'DESC']], // 按版本号升序排序
+    });
 
+    if (records.length === 0) {
+      res.send({
+        code: 404,
+        errmsg: 'No matching records found',
+      });
+    } else {
+      res.send({
+        code: 200,
+        errmsg: "ok",
+        data: records.map((record) => record.toJSON()),
+      });
+    }
+  } catch (error) {
+    console.error("Error during querying:", error);
+    res.send({
+      code: 500,
+      errmsg: error.message,
+    });
+  }
+});
 // 新增接口：接收两个数并返回它们的和
 app.post("/api/add", async (req, res) => {
   const { a, b } = req.body;
@@ -310,7 +349,6 @@ app.post("/api/add", async (req, res) => {
       message: "参数无效，请传递两个数字。",
     });
   }
-  
   const sum = a + b;
   res.send({
     code: 0,
@@ -343,9 +381,9 @@ app.post("/api/save_firmware_info", async (req, res) => {
       billingTime: new Date(), // 可选的计费时间
     });
     console.log("New record added:", newRecord.toJSON());
-    // 查询数据
-    const allRecords = await FirmwareInfo.findAll();
-    console.log("All records:", allRecords.map((record) => record.toJSON()));
+    // // 查询数据
+    // const allRecords = await FirmwareInfo.findAll();
+    // console.log("All records:", allRecords.map((record) => record.toJSON()));
     res.send({
       code: 200,
       errmsg: 'ok'

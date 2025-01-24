@@ -282,13 +282,38 @@
       <form id="uploadForm">
         <input type="file" id="fileInput" name="file" required />
         <button type="button" onclick="uploadFile()">Upload</button>
+        <div style="margin-top: 20px;">
+          <h3>Current Input:</h3>
+          <p><strong>Device Type:</strong> <span id="deviceType">N/A</span></p>
+          <p><strong>Version:</strong> <span id="Version">N/A</span></p>
+          <p><strong>File ID:</strong> <span id="FileId">N/A</span></p>
+        </div>
       </form>
-      <div style="margin-top: 20px;">
-        <h3>Current Input:</h3>
-        <p><strong>Device Type:</strong> <span id="deviceType">N/A</span></p>
-        <p><strong>Version:</strong> <span id="Version">N/A</span></p>
-        <p><strong>File ID:</strong> <span id="FileId">N/A</span></p>
-      </div>
+      <h1>Get New Version</h1>
+      <form id="getnewversion">
+        <label for="deviceType">Device Type:</label>
+        <input
+          type="text"
+          id="device_Type"
+          name="deviceType"
+          placeholder="Enter device type"
+          required />
+        <br /><br />
+
+        <label for="version">Version:</label>
+        <input
+          type="text"
+          id="version_test"
+          name="version"
+          placeholder="Enter version"
+          required />
+        <br /><br />
+        <button type="button" onclick="GetNewVersion()">GetNewVersion</button>
+        <div style="margin-top: 20px;">
+          <p><strong>Version:</strong> <span id="Version">N/A</span></p>
+          <p><strong>File Url:</strong> <span id="FileId">N/A</span></p>
+        </div>
+      </form>
     </div>
   </div>
 </body>
@@ -297,8 +322,7 @@
   integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script>
   const host_url = 'https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/';
-  //const host_url = 'http://127.0.0.1:27081/';
-  
+  // const host_url = 'http://127.0.0.1:27082/';
   init();
   function init() {
     $.ajax("/api/count", {
@@ -359,7 +383,8 @@
         md5s: md5_
       };
       try {
-          const response = await fetch('https://express-y9id-133296-9-1333806028.sh.run.tcloudbase.com/api/save_firmware_info', {
+          const url = host_url + "api/save_firmware_info";
+          const response = await fetch(url, {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
@@ -422,7 +447,7 @@
             const ret = await response.text(); // Fallback to text
             console.log('File uploaded successfully (non-JSON response): ' + ret);
           }
-          alert('File uploaded successfully');
+          // alert('File uploaded successfully');
           // 正则表达式匹配
           const match = file.name.match(/(ESP32S3-\d+)-V(\d+\.\d+\.\d+)/);
           if (match) {
@@ -433,10 +458,10 @@
             const rett = await save_firmware_info(devic_type, version, result.data.ret.data.file_id, md5_);
             console.log("version 2:", rett);
             if(rett.code === 200) {
-              alert('File info save successfully');
+              alert('Upload File and save successfully');
               document.getElementById('deviceType').textContent = devic_type;
               document.getElementById('Version').textContent = version;
-              document.getElementById('FileId').textContent = version;
+              document.getElementById('FileId').textContent = result.data.ret.data.file_id;
             } 
           } else {
             alert('File name format error: ' + file.name);
@@ -449,6 +474,41 @@
         alert('An error occurred during the upload.');
       }
     }
+  async function GetNewVersion() {
+    const deviceType = document.getElementById('device_Type').value;
+    const version = document.getElementById('version_test').value;
+
+    if (!deviceType || !version) {
+      alert('Please enter both Device Type and Version.');
+      return;
+    }
+    try {
+      const url = host_url + "api/getNewVersion";
+      const response = await fetch(url, { // 替换为实际的 API 地址
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device_type: deviceType,
+          version: version,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // 更新页面显示
+      document.getElementById('Version').textContent = result.data.version || 'N/A';
+      document.getElementById('FileId').textContent = result.data.file_url || 'N/A';
+    } catch (error) {
+      console.error('Error fetching new version:', error.message);
+      alert('Failed to fetch the new version. Please try again.');
+    }
+  }
 </script>
 
 </html>

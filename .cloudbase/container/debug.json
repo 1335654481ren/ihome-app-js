@@ -2,7 +2,6 @@
   "containers": [
     {
       "name": "ihome-app-js",
-      "containerId": "5ba4435c2812f188cc732bdbe336309079348759e225298c304e60c2db38a3de",
       "domain": "",
       "ip": "",
       "mode": "compose"
