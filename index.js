@@ -328,6 +328,8 @@ app.post("/api/getNewVersion", async (req, res) => {
       });
     } else {
       const info_record = records.map((record) => record.toJSON());
+      console.log("Record:", info_record);
+      console.log("Record:", info_record.data[0]);
       const ret = await GetDownloadFileInfo(info_record.data[0].fileid);
       res.send({
         code: 200,
