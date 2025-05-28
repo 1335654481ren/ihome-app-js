@@ -24,7 +24,7 @@ function generateUUID(macAddress) {
   // 获取当前时间戳
   console.log("MacAddress", macAddress);
   const timestamp = Date.now();
-  console.log("renxl test");
+  console.log("renxl test ddd");
   // 创建一个哈希函数 (例如 MD5 或 SHA256)
   const crypto = require("crypto");
   const hash = crypto.createHash("md5");
